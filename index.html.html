@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lion Puzzle Game</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #f8f8f8;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        margin-bottom: 15px;
+    }
+
+    #game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .puzzle-board {
+        width: 450px;
+        height: 300px;
+        display: grid;
+        grid-template-columns: repeat(3, 150px);
+        grid-template-rows: repeat(2, 150px);
+        gap: 2px;
+        border: 3px solid #444;
+        background: #ccc;
+        margin-bottom: 20px;
+    }
+
+    .slot {
+        width: 150px;
+        height: 150px;
+        border: 1px dashed #999;
+        background: white;
+    }
+
+    .pieces {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 460px;
+        margin-top: 20px;
+    }
+
+    .piece {
+        width: 150px;
+        height: 150px;
+        margin: 2px;
+        background-size: 450px 300px;
+        border: 2px solid #666;
+        cursor: grab;
+    }
+
+    #win-message {
+        font-size: 24px;
+        font-weight: bold;
+        color: green;
+        display: none;
+    }
+</style>
+</head>
+<body>
+    <h1>Lion Birthday Puzzle</h1>
+    <div id="game-container">
+        <div class="puzzle-board" id="board">
+            <div class="slot" data-position="0"></div>
+            <div class="slot" data-position="1"></div>
+            <div class="slot" data-position="2"></div>
+            <div class="slot" data-position="3"></div>
+            <div class="slot" data-position="4"></div>
+            <div class="slot" data-position="5"></div>
+        </div>
+
+        <div class="pieces" id="pieces"></div>
+        <div id="win-message">🎉 You Win! 🎉</div>
+    </div>
+
+<script>
+const IMAGE_URL = "IMG_20250605_130724100_HDR.jpg";
+const positions = [
+    "0px 0px", "-150px 0px", "-300px 0px",
+    "0px -150px", "-150px -150px", "-300px -150px"
+];
+
+const piecesContainer = document.getElementById("pieces");
+const board = document.getElementById("board");
+const winMessage = document.getElementById("win-message");
+
+// Create puzzle pieces
+let pieces = [];
+for (let i = 0; i < 6; i++) {
+    const piece = document.createElement("div");
+    piece.classList.add("piece");
+    piece.style.backgroundImage = `url(${IMAGE_URL})`;
+    piece.style.backgroundPosition = positions[i];
+    piece.draggable = true;
+    piece.dataset.correct = i;
+    pieces.push(piece);
+}
+
+// Shuffle pieces
+pieces.sort(() => Math.random() - 0.5);
+pieces.forEach(p => piecesContainer.appendChild(p));
+
+// Drag & Drop
+let draggedPiece = null;
+
+document.addEventListener("dragstart", e => {
+    if (e.target.classList.contains("piece")) {
+        draggedPiece = e.target;
+    }
+});
+
+document.addEventListener("dragover", e => {
+    if (e.target.classList.contains("slot")) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener("drop", e => {
+    if (e.target.classList.contains("slot")) {
+        e.preventDefault();
+        if (!e.target.firstChild) {
+            e.target.appendChild(draggedPiece);
+            checkWin();
+        }
+    }
+});
+
+function checkWin() {
+    const slots = document.querySelectorAll(".slot");
+    for (let i = 0; i < slots.length; i++) {
+        const piece = slots[i].firstChild;
+        if (!piece || parseInt(piece.dataset.correct) !== i) {
+            return;
+        }
+    }
+    winMessage.style.display = "block";
+}
+</script>
+</body>
+</html>
